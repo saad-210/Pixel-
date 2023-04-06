@@ -1,0 +1,32 @@
+import tweepy
+import requests
+
+# Twitter API credentials
+consumer_key = 'YOUR_CONSUMER_KEY'
+consumer_secret = 'YOUR_CONSUMER_SECRET'
+access_token = 'YOUR_ACCESS_TOKEN'
+access_token_secret = 'YOUR_ACCESS_TOKEN_SECRET'
+
+# Authenticate with Twitter API
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth)
+
+# Query tweets
+official_account = 'pixels'
+hashtag = '#wenpixel'
+query = f'to:{official_account} OR {hashtag}'
+tweets = api.search_tweets(query, count=100)
+
+# Send POST request to API for each tweet
+api_url = 'https://pixels-data.xyz/wen'
+for tweet in tweets:
+    user_id = tweet.user.id_str
+    tweet_id = tweet.id_str
+    payload = {'user_id': user_id, 'tweet_id': tweet_id}
+    headers = {'Content-Type': 'application/json'}
+    response = requests.post(api_url, json=payload, headers=headers)
+    if response.status_code == 200:
+        print(f'Successfully sent data for tweet {tweet_id}')
+    else:
+        print(f'Error sending data for tweet {tweet_id}')
